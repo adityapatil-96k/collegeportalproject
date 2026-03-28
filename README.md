@@ -75,6 +75,7 @@ npm run dev
 | `APP_BASE_URL` | Public URL of this app (no trailing slash) — used in approval emails (`BASE_URL` also supported) |
 | `ADMIN_EMAIL` | Inbox that receives “new teacher” emails |
 | `RESEND_API_KEY` | Resend API key used for transactional email sending |
+| `RESEND_FROM` | Sender email (default `onboarding@resend.dev`); use your verified domain email in production |
 | `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET` | Cloudinary credentials |
 | `CLOUDINARY_FOLDER` | Folder for uploads in Cloudinary (default: `college-resources`) |
 
@@ -137,6 +138,8 @@ npm run test-email
 
 - Ensure `RESEND_API_KEY` is set in your environment.
 - Verify `ADMIN_EMAIL` is a valid recipient.
+- In Resend test mode (`onboarding@resend.dev`), you can only send to your own Resend account email.
+- To send to other recipients, verify a domain in Resend and set `RESEND_FROM` to that verified domain sender.
 
 ## Security note
 

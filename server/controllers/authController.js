@@ -23,6 +23,14 @@ function escapeHtml(value) {
     .replace(/"/g, '&quot;');
 }
 
+function getEmailFailureMessage(err) {
+  const message = String(err?.message || '');
+  if (message.includes('You can only send testing emails to your own email address')) {
+    return 'Resend is in testing mode. You can send only to your own Resend account email until you verify a domain and set RESEND_FROM to that domain.';
+  }
+  return 'Registration could not be completed because admin approval email could not be sent. Please try again shortly.';
+}
+
 /**
  * POST /register — create student (approved) or teacher (pending approval).
  */
@@ -102,8 +110,7 @@ async function register(req, res) {
         console.error('[email:admin-approval-send-failed]', mailErr.message);
         await User.deleteOne({ _id: user._id });
         return res.status(503).json({
-          message:
-            'Registration could not be completed because admin approval email could not be sent. Please try again shortly.',
+          message: getEmailFailureMessage(mailErr),
           ...(process.env.NODE_ENV === 'production' ? {} : { emailDebug: mailErr.message }),
         });
       }

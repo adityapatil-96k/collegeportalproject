@@ -14,11 +14,16 @@ function getResendClient() {
   return new Resend(apiKey);
 }
 
+function getFromAddress() {
+  const configured = envTrim('RESEND_FROM');
+  return configured || 'onboarding@resend.dev';
+}
+
 async function sendEmail(to, subject, html) {
   const resend = getResendClient();
   try {
     const result = await resend.emails.send({
-      from: 'onboarding@resend.dev',
+      from: getFromAddress(),
       to,
       subject,
       html,
