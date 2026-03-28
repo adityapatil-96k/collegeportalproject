@@ -21,14 +21,14 @@ async function updateStudentProfile(req, res) {
         .status(400)
         .json({ message: 'department, year, semester are required for first setup' });
     }
-    if (hasProfile && semester === undefined) {
-      return res.status(400).json({ message: 'semester is required' });
+    if (hasProfile && (year === undefined || semester === undefined)) {
+      return res.status(400).json({ message: 'year and semester are required' });
     }
-    if (hasProfile && (department !== undefined || year !== undefined)) {
-      return res.status(400).json({ message: 'department and year cannot be changed' });
+    if (hasProfile && department !== undefined) {
+      return res.status(400).json({ message: 'department cannot be changed' });
     }
 
-    const yearNum = hasProfile ? Number(student.year) : Number(year);
+    const yearNum = Number(year);
     const semesterNum = Number(semester);
     if (![1, 2, 3].includes(yearNum)) {
       return res.status(400).json({ message: 'year must be 1, 2, or 3' });
@@ -43,7 +43,7 @@ async function updateStudentProfile(req, res) {
     }
 
     const updateDoc = hasProfile
-      ? { semester: semesterNum }
+      ? { year: yearNum, semester: semesterNum }
       : {
           department: String(department).trim(),
           year: yearNum,
