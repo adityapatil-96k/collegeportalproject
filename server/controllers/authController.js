@@ -1,11 +1,27 @@
 const bcrypt = require('bcryptjs');
 const User = require('../models/User');
 const { signToken } = require('../utils/jwt');
-const {
-  sendTeacherPendingEmail,
-  sendTeacherRegistrationReceipt,
-  logMailError,
-} = require('../utils/sendMail');
+const { sendEmail } = require('../services/email.service');
+
+function envTrim(key) {
+  const value = process.env[key];
+  if (value == null) return '';
+  return String(value).replace(/\r/g, '').trim();
+}
+
+function getAppBaseUrl() {
+  const raw = envTrim('APP_BASE_URL') || envTrim('BASE_URL') || 'http://localhost:5000';
+  return raw.replace(/\/$/, '');
+}
+
+function escapeHtml(value) {
+  if (!value) return '';
+  return String(value)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
 
 /**
  * POST /register — create student (approved) or teacher (pending approval).
@@ -42,38 +58,54 @@ async function register(req, res) {
       isApproved,
     });
 
-    let adminNotified = false;
-    let emailErrorSummary = null;
-
     if (role === 'teacher') {
+      const adminEmail = envTrim('ADMIN_EMAIL');
+      if (!adminEmail) {
+        await User.deleteOne({ _id: user._id });
+        return res.status(503).json({
+          message: 'Registration could not be completed because ADMIN_EMAIL is not configured.',
+        });
+      }
+
+      const appBaseUrl = getAppBaseUrl();
       const teacherPayload = {
         name: user.name,
         email: user.email,
         userId: user._id.toString(),
       };
+      const approveUrl = `${appBaseUrl}/api/admin/approve/${teacherPayload.userId}`;
+      const rejectUrl = `${appBaseUrl}/api/admin/reject/${teacherPayload.userId}`;
+      const subject = `Teacher registration pending: ${teacherPayload.name}`;
+      const html = `
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"></head>
+<body style="font-family: system-ui, sans-serif; line-height: 1.5; color: #1a1a1a;">
+  <h2 style="margin-bottom: 0.5rem;">New teacher registration</h2>
+  <p style="margin-top: 0;">A teacher has registered and needs your approval.</p>
+  <table style="margin: 1rem 0; border-collapse: collapse;">
+    <tr><td style="padding: 0.25rem 1rem 0.25rem 0;"><strong>Name</strong></td><td>${escapeHtml(teacherPayload.name)}</td></tr>
+    <tr><td style="padding: 0.25rem 1rem 0.25rem 0;"><strong>Email</strong></td><td>${escapeHtml(teacherPayload.email)}</td></tr>
+  </table>
+  <p style="margin-top: 1.5rem;">
+    <a href="${approveUrl}" style="display: inline-block; padding: 10px 20px; background: #0d6efd; color: #fff; text-decoration: none; border-radius: 6px; margin-right: 8px;">Approve teacher</a>
+    <a href="${rejectUrl}" style="display: inline-block; padding: 10px 20px; background: #dc3545; color: #fff; text-decoration: none; border-radius: 6px;">Reject teacher</a>
+  </p>
+  <p style="font-size: 0.875rem; color: #666; margin-top: 2rem;">If the buttons do not work, copy these links:</p>
+  <p style="font-size: 0.8rem; word-break: break-all;"><strong>Approve:</strong> ${approveUrl}</p>
+  <p style="font-size: 0.8rem; word-break: break-all;"><strong>Reject:</strong> ${rejectUrl}</p>
+</body>
+</html>`;
       try {
-        await sendTeacherPendingEmail(teacherPayload);
-        adminNotified = true;
+        await sendEmail(adminEmail, subject, html);
       } catch (mailErr) {
-        logMailError('admin-notify', mailErr);
-        emailErrorSummary =
-          process.env.NODE_ENV === 'production'
-            ? 'Could not send email to admin'
-            : mailErr.message;
-      }
-      if (!adminNotified) {
+        console.error('[email:admin-approval-send-failed]', mailErr.message);
         await User.deleteOne({ _id: user._id });
         return res.status(503).json({
           message:
             'Registration could not be completed because admin approval email could not be sent. Please try again shortly.',
-          ...(emailErrorSummary ? { emailDebug: emailErrorSummary } : {}),
+          ...(process.env.NODE_ENV === 'production' ? {} : { emailDebug: mailErr.message }),
         });
-      }
-      // Receipt to teacher helps confirm SMTP works and clarifies mail goes to admin first
-      try {
-        await sendTeacherRegistrationReceipt(teacherPayload);
-      } catch (receiptErr) {
-        logMailError('teacher-receipt', receiptErr);
       }
     }
 
@@ -86,7 +118,7 @@ async function register(req, res) {
 
     return res.status(201).json({
       message: teacherMsg,
-      adminNotified,
+      adminNotified: role === 'teacher',
       user: {
         id: user._id,
         name: user.name,
