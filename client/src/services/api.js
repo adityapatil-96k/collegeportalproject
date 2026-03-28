@@ -155,3 +155,21 @@ export async function markNotificationRead(id) {
 export async function trackDownload(resourceId) {
   return api.post(`/resources/${resourceId}/download`, {});
 }
+
+export async function getResourceViewBlob(resourceId) {
+  const response = await fetch(toApiUrl(`/resources/${resourceId}/view`), {
+    method: 'GET',
+    headers: authHeaders(),
+    credentials: 'include',
+  });
+
+  if (!response.ok) {
+    const data = await response.json().catch(() => ({}));
+    const err = new Error(data?.message || `Request failed (${response.status})`);
+    err.status = response.status;
+    err.data = data;
+    throw err;
+  }
+
+  return response.blob();
+}
