@@ -1,4 +1,4 @@
-const API_BASE = import.meta.env.VITE_API_BASE || '';
+const BASE_URL = import.meta.env.VITE_API_BASE || (import.meta.env.DEV ? '' : 'https://collegeportalproject.onrender.com');
 
 function getToken() {
   return localStorage.getItem('token');
@@ -13,7 +13,7 @@ function authHeaders(extra = {}) {
 }
 
 async function request(path, { method = 'GET', body, headers } = {}) {
-  const res = await fetch(`${API_BASE}${path}`, {
+  const res = await fetch(`${BASE_URL}${path}`, {
     method,
     headers: {
       ...authHeaders(headers),
@@ -34,6 +34,12 @@ async function request(path, { method = 'GET', body, headers } = {}) {
   return data;
 }
 
+export function toApiUrl(path = '') {
+  if (!path) return BASE_URL;
+  if (/^https?:\/\//i.test(path)) return path;
+  return `${BASE_URL}${path}`;
+}
+
 export const api = {
   get: (path) => request(path),
   post: (path, body, headers) => request(path, { method: 'POST', body, headers }),
@@ -43,7 +49,7 @@ export const api = {
 
 export async function uploadResource(formData, onProgress) {
   const token = getToken();
-  const url = `${API_BASE}/resources/upload`;
+  const url = toApiUrl('/resources/upload');
 
   return new Promise((resolve, reject) => {
     const xhr = new XMLHttpRequest();

@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
 import { motion } from 'framer-motion';
 import { FileText, Download, Eye, Bookmark, BookmarkCheck } from 'lucide-react';
-import { trackDownload } from '../services/api';
+import { toApiUrl, trackDownload } from '../services/api';
 
 function fmtDate(iso) {
   try {
@@ -16,7 +16,7 @@ export function ResourceCard({ resource, isBookmarked, onToggleBookmark }) {
   const subject = resource?.subject || '—';
   const uploader = resource?.uploadedBy?.name || 'Unknown';
   const date = fmtDate(resource?.createdAt);
-  const url = resource?._id ? `/resources/${resource._id}/view` : resource?.fileUrl;
+  const url = resource?._id ? toApiUrl(`/resources/${resource._id}/view`) : resource?.fileUrl;
 
   const openView = (e) => {
     e.stopPropagation();

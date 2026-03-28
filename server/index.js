@@ -15,6 +15,7 @@ const corsOrigins = String(process.env.CORS_ORIGIN || '')
   .split(',')
   .map((v) => v.trim())
   .filter(Boolean);
+const frontendBaseUrl = String(process.env.FRONTEND_BASE_URL || '').trim().replace(/\/$/, '');
 
 // Trust proxy if behind HTTPS terminator in production
 app.set('trust proxy', 1);
@@ -27,6 +28,19 @@ app.use(
 );
 app.use(express.json());
 app.use(cookieParser());
+
+const frontendRedirectMap = {
+  '/': '/auth',
+  '/auth.html': '/auth',
+  '/student-dashboard.html': '/student',
+  '/teacher-dashboard.html': '/teacher',
+};
+
+app.get(Object.keys(frontendRedirectMap), (req, res, next) => {
+  if (!frontendBaseUrl) return next();
+  const destinationPath = frontendRedirectMap[req.path] || '/';
+  return res.redirect(302, `${frontendBaseUrl}${destinationPath}`);
+});
 
 // Static frontend (register, login, dashboards)
 app.use(express.static(path.join(__dirname, '..', 'public')));
