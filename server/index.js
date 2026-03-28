@@ -11,13 +11,17 @@ const resourceRoutes = require('./routes/resourceRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
+const corsOrigins = String(process.env.CORS_ORIGIN || '')
+  .split(',')
+  .map((v) => v.trim())
+  .filter(Boolean);
 
 // Trust proxy if behind HTTPS terminator in production
 app.set('trust proxy', 1);
 
 app.use(
   cors({
-    origin: true,
+    origin: corsOrigins.length > 0 ? corsOrigins : true,
     credentials: true,
   })
 );
