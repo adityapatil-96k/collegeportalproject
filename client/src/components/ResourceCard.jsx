@@ -20,14 +20,14 @@ export function ResourceCard({ resource, isBookmarked, onToggleBookmark, onDelet
   const openView = async (e) => {
     e.stopPropagation();
     if (!resource?._id) return;
-    const viewWindow = window.open('', '_blank', 'noopener,noreferrer');
+    const viewWindow = window.open('about:blank', '_blank');
     try {
       const blob = await getResourceViewBlob(resource._id);
       const blobUrl = URL.createObjectURL(blob);
       if (viewWindow) {
         viewWindow.location.href = blobUrl;
       } else {
-        window.open(blobUrl, '_blank', 'noopener,noreferrer');
+        window.open(blobUrl, '_blank');
       }
       setTimeout(() => URL.revokeObjectURL(blobUrl), 60_000);
     } catch (err) {
