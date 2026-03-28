@@ -15,14 +15,21 @@ const corsOrigins = String(process.env.CORS_ORIGIN || '')
   .split(',')
   .map((v) => v.trim())
   .filter(Boolean);
-const frontendBaseUrl = String(process.env.FRONTEND_BASE_URL || '').trim().replace(/\/$/, '');
+const defaultFrontendBaseUrl = 'https://collegeportalproject.vercel.app';
+const frontendBaseUrl = String(
+  process.env.FRONTEND_BASE_URL || (process.env.NODE_ENV === 'production' ? defaultFrontendBaseUrl : '')
+)
+  .trim()
+  .replace(/\/$/, '');
+const defaultCorsOrigins = ['http://localhost:5173', defaultFrontendBaseUrl];
+const resolvedCorsOrigins = corsOrigins.length > 0 ? corsOrigins : defaultCorsOrigins;
 
 // Trust proxy if behind HTTPS terminator in production
 app.set('trust proxy', 1);
 
 app.use(
   cors({
-    origin: corsOrigins.length > 0 ? corsOrigins : true,
+    origin: resolvedCorsOrigins,
     credentials: true,
   })
 );
