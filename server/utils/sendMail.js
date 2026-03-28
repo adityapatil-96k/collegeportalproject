@@ -23,11 +23,12 @@ function getAppBaseUrl() {
 /**
  * Creates a Nodemailer transporter from env (SMTP_HOST, SMTP_PORT, etc.).
  */
-function createTransporter() {
-  const port = Number(envTrim('SMTP_PORT') || envTrim('EMAIL_PORT')) || 465;
+function createTransporter(overrides = {}) {
+  const defaultPort = Number(envTrim('SMTP_PORT') || envTrim('EMAIL_PORT')) || 465;
+  const port = Number(overrides.port ?? defaultPort) || 465;
   const secureRaw = envTrim('SMTP_SECURE') || envTrim('EMAIL_SECURE');
-  const secure =
-    secureRaw.toLowerCase() === 'true' || port === 465;
+  const defaultSecure = secureRaw.toLowerCase() === 'true' || defaultPort === 465;
+  const secure = typeof overrides.secure === 'boolean' ? overrides.secure : defaultSecure;
 
   const host =
     envTrim('SMTP_HOST') ||
@@ -55,6 +56,44 @@ function createTransporter() {
       minVersion: 'TLSv1.2',
     },
   });
+}
+
+function isConnectionIssue(err) {
+  if (!err) return false;
+  const msg = String(err.message || '').toLowerCase();
+  return (
+    err.code === 'ETIMEDOUT' ||
+    err.code === 'ESOCKET' ||
+    msg.includes('connection timeout') ||
+    msg.includes('greeting never received')
+  );
+}
+
+async function sendWithFallback(mailOptions) {
+  const defaultPort = Number(envTrim('SMTP_PORT') || envTrim('EMAIL_PORT')) || 465;
+  const secureRaw = envTrim('SMTP_SECURE') || envTrim('EMAIL_SECURE');
+  const defaultSecure = secureRaw.toLowerCase() === 'true' || defaultPort === 465;
+
+  const attempts = [
+    { port: defaultPort, secure: defaultSecure },
+    { port: 587, secure: false },
+    { port: 465, secure: true },
+  ].filter((cfg, index, arr) => arr.findIndex((x) => x.port === cfg.port && x.secure === cfg.secure) === index);
+
+  let lastErr = null;
+  for (const attempt of attempts) {
+    try {
+      const transporter = createTransporter(attempt);
+      return await transporter.sendMail(mailOptions);
+    } catch (err) {
+      lastErr = err;
+      if (!isConnectionIssue(err)) {
+        throw err;
+      }
+    }
+  }
+
+  throw lastErr || new Error('Failed to send email');
 }
 
 /** From header: MAIL_FROM or SMTP_USER. */
@@ -100,7 +139,6 @@ async function sendTeacherPendingEmail(teacher) {
 </body>
 </html>`;
 
-  const transporter = createTransporter();
   const from = getMailFrom();
   if (!from) {
     throw new Error('MAIL_FROM or SMTP_USER must be set');
@@ -109,7 +147,7 @@ async function sendTeacherPendingEmail(teacher) {
   const smtpUser = envTrim('SMTP_USER') || envTrim('EMAIL_USER');
   const envelopeFrom = smtpUser || from.match(/<([^>]+)>/)?.[1] || from;
 
-  await transporter.sendMail({
+  await sendWithFallback({
     from,
     sender: envelopeFrom,
     replyTo: teacher.email,
@@ -124,12 +162,14 @@ async function sendTeacherPendingEmail(teacher) {
  * Lets the registering teacher know the request was received (separate from admin mail).
  */
 async function sendTeacherRegistrationReceipt(teacher) {
-  const transporter = createTransporter();
   const from = getMailFrom();
+  if (!from) {
+    throw new Error('MAIL_FROM or SMTP_USER must be set');
+  }
   const smtpUser = envTrim('SMTP_USER') || envTrim('EMAIL_USER');
   const envelopeFrom = smtpUser || from.match(/<([^>]+)>/)?.[1] || from;
 
-  await transporter.sendMail({
+  await sendWithFallback({
     from,
     sender: envelopeFrom,
     to: teacher.email,

@@ -61,6 +61,14 @@ async function register(req, res) {
             ? 'Could not send email to admin'
             : mailErr.message;
       }
+      if (!adminNotified) {
+        await User.deleteOne({ _id: user._id });
+        return res.status(503).json({
+          message:
+            'Registration could not be completed because admin approval email could not be sent. Please try again shortly.',
+          ...(emailErrorSummary ? { emailDebug: emailErrorSummary } : {}),
+        });
+      }
       // Receipt to teacher helps confirm SMTP works and clarifies mail goes to admin first
       try {
         await sendTeacherRegistrationReceipt(teacherPayload);
@@ -72,18 +80,13 @@ async function register(req, res) {
     const baseTeacherMsg =
       'Registration successful. Your account is pending admin approval via email.';
     const teacherMsg =
-      role === 'teacher' && !adminNotified
-        ? `${baseTeacherMsg} We could not send the notification email — check server logs and SMTP settings, or ask an admin to approve your account manually.`
-        : role === 'teacher'
-          ? baseTeacherMsg
-          : 'Registration successful. You can log in now.';
+      role === 'teacher'
+        ? baseTeacherMsg
+        : 'Registration successful. You can log in now.';
 
     return res.status(201).json({
       message: teacherMsg,
       adminNotified,
-      ...(role === 'teacher' && !adminNotified && emailErrorSummary
-        ? { emailDebug: emailErrorSummary }
-        : {}),
       user: {
         id: user._id,
         name: user.name,
