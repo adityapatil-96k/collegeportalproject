@@ -1,0 +1,227 @@
+List of Symbols, Abbreviations & Nomenclatures
+Source Basis: JavaScript implementation files in server/, client/src/, and public/js/
+
+==================================================
+A) Symbols and Notations Used in Code
+==================================================
+
+_id
+MongoDB object identifier used for users, resources, bookmarks, notifications.
+
+:id
+Route path parameter for resource/user identifiers (example: /resources/:id).
+
+?
+Query-string prefix in API filtering/search endpoints.
+
+&
+Query parameter separator in resource filters.
+
+/
+Path separator in REST endpoint definitions.
+
+==
+Role/status comparisons in logic branches.
+
+=== 
+Strict equality checks in frontend/backend conditionals.
+
+()
+Function invocation and parameter grouping in JS.
+
+{}
+Object literals and block scopes in JS controllers/components.
+
+[]
+Arrays used for enums/categories/allowed values.
+
+==================================================
+B) Abbreviations Extracted from Implementation
+==================================================
+
+API
+Application Programming Interface.
+Used in route/controller/service naming and endpoint flows.
+
+JWT
+JSON Web Token.
+Used for authentication and authorization.
+
+PDF
+Portable Document Format.
+Primary resource file format accepted for uploads/viewing.
+
+PYQ
+Previous Year Questions.
+One of the defined resource categories.
+
+UI
+User Interface.
+Used in frontend structure and labels.
+
+DB
+Database.
+Referenced through MongoDB/Mongoose model operations.
+
+URL
+Uniform Resource Locator.
+Used for APP_BASE_URL, fileUrl, route construction.
+
+ID
+Identifier.
+Used in route parameters and entity references.
+
+CORS
+Cross-Origin Resource Sharing.
+Configured in backend server for frontend-backend integration.
+
+ODM
+Object Document Mapper.
+Applied through Mongoose model/schema usage.
+
+GET
+HTTP read method used for fetch/list/view endpoints.
+
+POST
+HTTP create/action method used for register/login/upload/bookmark/download tracking.
+
+PUT
+HTTP update method used for profile/resource/notification-read updates.
+
+DELETE
+HTTP remove method used for bookmarks/resources/student-account deletion.
+
+==================================================
+C) Nomenclatures from Core Domain Model
+==================================================
+
+User
+Account entity with role, approval state, and student profile fields.
+
+Resource
+Study material entity uploaded by teachers with metadata and file location.
+
+Notification
+Student-targeted alert entity tied to resources and read status.
+
+Bookmark
+Student saved-resource mapping entity.
+
+Role
+Authorization classification: student or teacher.
+
+isApproved
+Teacher approval state required for teacher dashboard access.
+
+Department
+Academic branch classification used for filtering/access control.
+
+Year
+Academic year value restricted to 1, 2, 3.
+
+Semester
+Academic semester value restricted to 1..6 and mapped by year.
+
+RESOURCE_TYPES
+Allowed resource categories:
+Syllabus, Lab Manual, Textbook, Assignment, PYQ, Microproject.
+
+RESOURCE_YEARS
+Allowed year enum: 1, 2, 3.
+
+RESOURCE_SEMESTERS
+Allowed semester enum: 1, 2, 3, 4, 5, 6.
+
+DEPARTMENTS
+Frontend department set:
+Computer, IT, Mechanical, Electrical, Civil.
+
+fileUrl
+Persisted file access URL for resource PDFs.
+
+uploadedBy
+Reference field connecting a resource to teacher user account.
+
+views
+Resource view counter.
+
+downloads
+Resource download counter.
+
+targetDepartment / targetYear / targetSemester
+Notification targeting dimensions for student audience filtering.
+
+==================================================
+D) Environment/Configuration Nomenclature in JS
+==================================================
+
+MONGODB_URI
+MongoDB connection string variable.
+
+JWT_SECRET
+Secret key for token signing/verification.
+
+PORT
+Backend listening port.
+
+APP_BASE_URL
+Base URL used to build approval links.
+
+CORS_ORIGIN
+Allowed frontend origins for cross-origin requests.
+
+FRONTEND_BASE_URL
+Frontend URL used for redirect behavior in backend.
+
+VITE_API_BASE
+Frontend API base URL variable.
+
+VITE_DEV_API_TARGET
+Frontend dev proxy target URL.
+
+ADMIN_EMAIL
+Admin mailbox recipient for teacher approval notifications.
+
+RESEND_API_KEY
+API key used by Resend email service.
+
+RESEND_FROM
+Configured sender address for Resend outbound emails.
+
+CLOUDINARY_CLOUD_NAME
+Cloudinary account cloud name.
+
+CLOUDINARY_API_KEY
+Cloudinary API key.
+
+CLOUDINARY_API_SECRET
+Cloudinary API secret.
+
+CLOUDINARY_FOLDER
+Cloudinary target folder for uploaded resources.
+
+==================================================
+E) Endpoint Nomenclature (JS Route Definitions)
+==================================================
+
+/register
+/login
+/logout
+/api/admin/approve/:id
+/api/admin/reject/:id
+/student-dashboard
+/teacher-dashboard
+/student-profile
+/student-account
+/resources/upload
+/resources
+/resources/search
+/resources/trending
+/resources/:id/view
+/resources/:id/download
+/resources/my
+/resources/:id
+/bookmarks
+/bookmarks/:id
+/notifications
+/notifications/read/:id

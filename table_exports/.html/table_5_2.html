@@ -1,0 +1,60 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Table 5.2</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 24px;
+      font-family: "Segoe UI", Arial, sans-serif;
+      background: #f5f7fb;
+      color: #0f172a;
+    }
+    .card {
+      background: #ffffff;
+      border: 1px solid #dbe1ea;
+      border-radius: 12px;
+      box-shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
+      overflow: hidden;
+      width: 1600px;
+    }
+    .title {
+      padding: 16px 20px;
+      background: #0f172a;
+      color: #ffffff;
+      font-size: 24px;
+      font-weight: 700;
+      line-height: 1.3;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 16px;
+    }
+    th, td {
+      border: 1px solid #e2e8f0;
+      padding: 10px 12px;
+      vertical-align: top;
+      text-align: left;
+      line-height: 1.35;
+    }
+    th {
+      background: #eaf1ff;
+      color: #0b3ea8;
+      font-weight: 700;
+    }
+    tr:nth-child(even) td { background: #fafcff; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="title">Table 5.2 — Database Schema – Resources Collection</div>
+    <table>
+      <thead><tr><th>Field</th><th>Type</th><th>Constraints/Default</th></tr></thead>
+      <tbody><tr><td>title</td><td>String</td><td>required, trim</td></tr><tr><td>description</td><td>String</td><td>default: &quot;&quot;</td></tr><tr><td>subject</td><td>String</td><td>required</td></tr><tr><td>department</td><td>String</td><td>required</td></tr><tr><td>year</td><td>Number</td><td>required, enum: 1|2|3</td></tr><tr><td>semester</td><td>Number</td><td>required, enum: 1..6</td></tr><tr><td>type</td><td>String</td><td>required, enum: Syllabus/Lab Manual/Textbook/Assignment/PYQ/Microproject</td></tr><tr><td>fileUrl</td><td>String</td><td>required</td></tr><tr><td>cloudPublicId</td><td>String</td><td>default: &quot;&quot;</td></tr><tr><td>cloudResourceType</td><td>String</td><td>default: raw</td></tr><tr><td>views</td><td>Number</td><td>default: 0</td></tr><tr><td>downloads</td><td>Number</td><td>default: 0</td></tr><tr><td>uploadedBy</td><td>ObjectId(User)</td><td>required</td></tr></tbody>
+    </table>
+  </div>
+</body>
+</html>

@@ -1,0 +1,60 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Table 5.1</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 24px;
+      font-family: "Segoe UI", Arial, sans-serif;
+      background: #f5f7fb;
+      color: #0f172a;
+    }
+    .card {
+      background: #ffffff;
+      border: 1px solid #dbe1ea;
+      border-radius: 12px;
+      box-shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
+      overflow: hidden;
+      width: 1600px;
+    }
+    .title {
+      padding: 16px 20px;
+      background: #0f172a;
+      color: #ffffff;
+      font-size: 24px;
+      font-weight: 700;
+      line-height: 1.3;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 16px;
+    }
+    th, td {
+      border: 1px solid #e2e8f0;
+      padding: 10px 12px;
+      vertical-align: top;
+      text-align: left;
+      line-height: 1.35;
+    }
+    th {
+      background: #eaf1ff;
+      color: #0b3ea8;
+      font-weight: 700;
+    }
+    tr:nth-child(even) td { background: #fafcff; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="title">Table 5.1 — Database Schema – Users Collection</div>
+    <table>
+      <thead><tr><th>Field</th><th>Type</th><th>Constraints/Default</th></tr></thead>
+      <tbody><tr><td>name</td><td>String</td><td>required, trim</td></tr><tr><td>email</td><td>String</td><td>required, unique, lowercase, trim</td></tr><tr><td>password</td><td>String</td><td>required, minlength: 6</td></tr><tr><td>role</td><td>String</td><td>required, enum: student|teacher</td></tr><tr><td>isApproved</td><td>Boolean</td><td>required</td></tr><tr><td>department</td><td>String</td><td>default: &quot;&quot;</td></tr><tr><td>year</td><td>Number</td><td>min:1, max:3, default:null</td></tr><tr><td>semester</td><td>Number</td><td>min:1, max:6, default:null</td></tr><tr><td>created_at</td><td>Date</td><td>auto timestamp</td></tr></tbody>
+    </table>
+  </div>
+</body>
+</html>

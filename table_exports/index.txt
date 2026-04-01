@@ -1,0 +1,14 @@
+table_1_1.png => Table 1.1 Comparison of Existing Systems
+table_3_1.png => Table 3.1 Functional Requirements of the System
+table_3_2.png => Table 3.2 Non-Functional Requirements of the System
+table_4_1.png => Table 4.1 User Roles and Permissions
+table_5_1.png => Table 5.1 Database Schema – Users Collection
+table_5_2.png => Table 5.2 Database Schema – Resources Collection
+table_5_3.png => Table 5.3 Database Schema – Notifications Collection
+table_5_4.png => Table 5.4 Database Schema – Bookmarks Collection
+table_6_1.png => Table 6.1 API Endpoints for Authentication
+table_6_2.png => Table 6.2 API Endpoints for Resource Management
+table_6_3.png => Table 6.3 API Endpoints for Notifications
+table_7_1.png => Table 7.1 Resource Categories and Descriptions
+table_8_1.png => Table 8.1 Technologies Used in the System
+table_9_1.png => Table 9.1 Testing Scenarios and Results
