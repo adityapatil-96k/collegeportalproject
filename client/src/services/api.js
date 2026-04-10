@@ -1,4 +1,4 @@
-const BASE_URL = import.meta.env.VITE_API_BASE || (import.meta.env.DEV ? '' : 'https://collegeportalproject.onrender.com');
+const API_BASE = import.meta.env.VITE_API_BASE || '';
 
 function getToken() {
   return localStorage.getItem('token');
@@ -13,7 +13,7 @@ function authHeaders(extra = {}) {
 }
 
 async function request(path, { method = 'GET', body, headers } = {}) {
-  const res = await fetch(`${BASE_URL}${path}`, {
+  const res = await fetch(`${API_BASE}${path}`, {
     method,
     headers: {
       ...authHeaders(headers),
@@ -34,12 +34,6 @@ async function request(path, { method = 'GET', body, headers } = {}) {
   return data;
 }
 
-export function toApiUrl(path = '') {
-  if (!path) return BASE_URL;
-  if (/^https?:\/\//i.test(path)) return path;
-  return `${BASE_URL}${path}`;
-}
-
 export const api = {
   get: (path) => request(path),
   post: (path, body, headers) => request(path, { method: 'POST', body, headers }),
@@ -49,7 +43,7 @@ export const api = {
 
 export async function uploadResource(formData, onProgress) {
   const token = getToken();
-  const url = toApiUrl('/resources/upload');
+  const url = `${API_BASE}/resources/upload`;
 
   return new Promise((resolve, reject) => {
     const xhr = new XMLHttpRequest();
@@ -124,52 +118,34 @@ export async function deleteStudentAccount() {
   return api.delete('/student-account');
 }
 
-export async function getBookmarks() {
-  return api.get('/bookmarks');
-}
+// export async function getBookmarks() {
+//   return api.get('/bookmarks');
+// }
 
-export async function addBookmark(resourceId) {
-  return api.post('/bookmarks', { resourceId });
-}
+// export async function addBookmark(resourceId) {
+//   return api.post('/bookmarks', { resourceId });
+// }
 
-export async function removeBookmark(bookmarkId) {
-  return api.delete(`/bookmarks/${bookmarkId}`);
-}
+// export async function removeBookmark(bookmarkId) {
+//   return api.delete(`/bookmarks/${bookmarkId}`);
+// }
 
-export async function getTrendingResources(sortBy = 'downloads') {
-  return api.get(`/resources/trending?sortBy=${encodeURIComponent(sortBy)}`);
-}
+// export async function getTrendingResources(sortBy = 'downloads') {
+//   return api.get(`/resources/trending?sortBy=${encodeURIComponent(sortBy)}`);
+// }
 
-export async function searchResources(query) {
-  return api.get(`/resources/search?q=${encodeURIComponent(query)}`);
-}
+// export async function searchResources(query) {
+//   return api.get(`/resources/search?q=${encodeURIComponent(query)}`);
+// }
 
-export async function getNotifications() {
-  return api.get('/notifications');
-}
+// export async function getNotifications() {
+//   return api.get('/notifications');
+// }
 
-export async function markNotificationRead(id) {
-  return api.put(`/notifications/read/${id}`, {});
-}
+// export async function markNotificationRead(id) {
+//   return api.put(`/notifications/read/${id}`, {});
+// }
 
 export async function trackDownload(resourceId) {
   return api.post(`/resources/${resourceId}/download`, {});
-}
-
-export async function getResourceViewBlob(resourceId) {
-  const response = await fetch(toApiUrl(`/resources/${resourceId}/view`), {
-    method: 'GET',
-    headers: authHeaders(),
-    credentials: 'include',
-  });
-
-  if (!response.ok) {
-    const data = await response.json().catch(() => ({}));
-    const err = new Error(data?.message || `Request failed (${response.status})`);
-    err.status = response.status;
-    err.data = data;
-    throw err;
-  }
-
-  return response.blob();
 }

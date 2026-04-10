@@ -47,7 +47,6 @@ export function TeacherDashboard() {
 
   const [myLoading, setMyLoading] = useState(false);
   const [myResources, setMyResources] = useState([]);
-  const [deletingId, setDeletingId] = useState('');
 
   const [uploadForm, setUploadForm] = useState(initialUpload);
   const [uploading, setUploading] = useState(false);
@@ -118,22 +117,6 @@ export function TeacherDashboard() {
       setUploadAlert({ type: 'error', message: err.message || 'Upload failed' });
     } finally {
       setUploading(false);
-    }
-  };
-
-  const handleDeleteResource = async (resource) => {
-    if (!resource?._id) return;
-    const ok = window.confirm(`Delete "${resource.title || 'this resource'}"?`);
-    if (!ok) return;
-    setDeletingId(resource._id);
-    try {
-      await api.delete(`/resources/${resource._id}`);
-      setMyResources((prev) => prev.filter((item) => item._id !== resource._id));
-      setResources((prev) => prev.filter((item) => item._id !== resource._id));
-    } catch (err) {
-      alert(err.message || 'Could not delete resource');
-    } finally {
-      setDeletingId('');
     }
   };
 
@@ -254,7 +237,7 @@ export function TeacherDashboard() {
               ) : resources.length > 0 ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6">
                   {resources.map(r => (
-                    <ResourceCard key={r._id} resource={r} />
+                    <ResourceCard key={r._id} resource={r} isBookmarked={() => false} onToggleBookmark={() => {}} />
                   ))}
                 </div>
               ) : (
@@ -280,12 +263,7 @@ export function TeacherDashboard() {
               ) : myResources.length > 0 ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6">
                   {myResources.map(r => (
-                    <ResourceCard
-                      key={r._id}
-                      resource={r}
-                      onDelete={handleDeleteResource}
-                      deleting={deletingId === r._id}
-                    />
+                    <ResourceCard key={r._id} resource={r} isBookmarked={() => false} onToggleBookmark={() => {}} />
                   ))}
                 </div>
               ) : (

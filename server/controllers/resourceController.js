@@ -184,29 +184,29 @@ async function uploadResource(req, res) {
       .populate('uploadedBy', 'name email')
       .select('-__v -password');
 
-    const targetStudents = await User.find({
-      role: 'student',
-      department: cleanDept,
-      year,
-      semester,
-    }).select('_id');
-    if (targetStudents.length > 0) {
-      const notifications = targetStudents.map((s) => ({
-        userId: s._id,
-        message: `New ${cleanType} uploaded in ${cleanDept} Year ${year} Sem ${semester}: ${cleanTitle}`,
-        resourceId: doc._id,
-      }));
-      await Notification.insertMany(notifications);
-    } else {
-      await Notification.create({
-        userId: null,
-        targetDepartment: cleanDept,
-        targetYear: year,
-        targetSemester: semester,
-        message: `New ${cleanType} uploaded in ${cleanDept} Year ${year} Sem ${semester}: ${cleanTitle}`,
-        resourceId: doc._id,
-      });
-    }
+    // const targetStudents = await User.find({
+    //   role: 'student',
+    //   department: cleanDept,
+    //   year,
+    //   semester,
+    // }).select('_id');
+    // if (targetStudents.length > 0) {
+    //   const notifications = targetStudents.map((s) => ({
+    //     userId: s._id,
+    //     message: `New ${cleanType} uploaded in ${cleanDept} Year ${year} Sem ${semester}: ${cleanTitle}`,
+    //     resourceId: doc._id,
+    //   }));
+    //   await Notification.insertMany(notifications);
+    // } else {
+    //   await Notification.create({
+    //     userId: null,
+    //     targetDepartment: cleanDept,
+    //     targetYear: year,
+    //     targetSemester: semester,
+    //     message: `New ${cleanType} uploaded in ${cleanDept} Year ${year} Sem ${semester}: ${cleanTitle}`,
+    //     resourceId: doc._id,
+    //   });
+    // }
 
     return res.status(201).json({ message: 'Upload successful', resource: populated });
   } catch (err) {

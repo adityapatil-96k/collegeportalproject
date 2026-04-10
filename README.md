@@ -1,6 +1,6 @@
 # College Portal — Authentication (Phase 1)
 
-Email/password auth with JWT, httpOnly cookies, and teacher approval via admin email links (Resend API). No admin UI.
+Email/password auth with JWT, httpOnly cookies, and teacher approval via admin email links (Nodemailer). No admin UI.
 
 ## Prerequisites
 
@@ -74,8 +74,8 @@ npm run dev
 | `PORT` | Server port (default 5000) |
 | `APP_BASE_URL` | Public URL of this app (no trailing slash) — used in approval emails (`BASE_URL` also supported) |
 | `ADMIN_EMAIL` | Inbox that receives “new teacher” emails |
-| `RESEND_API_KEY` | Resend API key used for transactional email sending |
-| `RESEND_FROM` | Sender email (default `onboarding@resend.dev`); use your verified domain email in production |
+| `SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, `SMTP_USER`, `SMTP_PASS` | SMTP server (legacy `EMAIL_*` names still work) |
+| `MAIL_FROM` | Sender, e.g. `"College App <you@gmail.com>"` |
 | `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET` | Cloudinary credentials |
 | `CLOUDINARY_FOLDER` | Folder for uploads in Cloudinary (default: `college-resources`) |
 
@@ -116,8 +116,8 @@ server/
   routes/adminRoutes.js
   routes/userRoutes.js
   routes/resourceRoutes.js
-  services/email.service.js
   utils/jwt.js
+  utils/sendMail.js
   index.js
 public/
   auth.html, index.html, *-dashboard.html
@@ -126,7 +126,7 @@ public/
   js/teacherResources.js
 ```
 
-## Resend email setup (teacher approval emails)
+## Gmail SMTP (teacher approval emails)
 
 The approval email is sent **to `ADMIN_EMAIL`**, not to the teacher. Check that inbox and **Spam**.
 
@@ -136,10 +136,8 @@ If mail never arrives, run:
 npm run test-email
 ```
 
-- Ensure `RESEND_API_KEY` is set in your environment.
-- Verify `ADMIN_EMAIL` is a valid recipient.
-- In Resend test mode (`onboarding@resend.dev`), you can only send to your own Resend account email.
-- To send to other recipients, verify a domain in Resend and set `RESEND_FROM` to that verified domain sender.
+- **535 / BadCredentials:** `SMTP_USER` must be the full Gmail address, and `SMTP_PASS` must be a **[Google App Password](https://support.google.com/accounts/answer/185833)** (16 characters, no spaces), not your normal Gmail password. The Google account must have **2-Step Verification** turned on.
+- If port **465** fails on your network, try **`SMTP_PORT=587`** and **`SMTP_SECURE=false`** in `.env`.
 
 ## Security note
 

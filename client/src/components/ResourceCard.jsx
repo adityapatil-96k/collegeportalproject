@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
 import { motion } from 'framer-motion';
-import { FileText, Download, Eye, Bookmark, BookmarkCheck, Trash2 } from 'lucide-react';
-import { getResourceViewBlob, trackDownload } from '../services/api';
+import { FileText, Download, Eye, Bookmark, BookmarkCheck } from 'lucide-react';
+import { trackDownload } from '../services/api';
 
 function fmtDate(iso) {
   try {
@@ -11,54 +11,36 @@ function fmtDate(iso) {
   }
 }
 
-export function ResourceCard({ resource, isBookmarked, onToggleBookmark, onDelete, deleting }) {
+export function ResourceCard({ resource, isBookmarked, onToggleBookmark }) {
   const title = resource?.title || '(Untitled)';
   const subject = resource?.subject || '—';
   const uploader = resource?.uploadedBy?.name || 'Unknown';
   const date = fmtDate(resource?.createdAt);
+  const url = resource?._id ? `/resources/${resource._id}/view` : resource?.fileUrl;
 
-  const openView = async (e) => {
+  const openView = (e) => {
     e.stopPropagation();
-    if (!resource?._id) return;
-    const viewWindow = window.open('about:blank', '_blank');
-    try {
-      const blob = await getResourceViewBlob(resource._id);
-      const blobUrl = URL.createObjectURL(blob);
-      if (viewWindow) {
-        viewWindow.location.href = blobUrl;
-      } else {
-        window.open(blobUrl, '_blank');
-      }
-      setTimeout(() => URL.revokeObjectURL(blobUrl), 60_000);
-    } catch (err) {
-      if (viewWindow && !viewWindow.closed) {
-        viewWindow.close();
-      }
-      alert(err.message || 'Could not open resource');
-    }
+    if (!url) return;
+    window.open(url, '_blank', 'noopener,noreferrer');
   };
 
   const onDownload = async (e) => {
     e.stopPropagation();
-    if (!resource?._id) return;
-    try {
-      await trackDownload(resource._id);
-    } catch (err) {
-      console.error('Download tracking failed:', err);
+    if (!url) return;
+    if (resource?._id) {
+      try {
+        await trackDownload(resource._id);
+      } catch (err) {
+        console.error('Download tracking failed:', err);
+      }
     }
-    try {
-      const blob = await getResourceViewBlob(resource._id);
-      const blobUrl = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = blobUrl;
-      a.download = `${title}.pdf`;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      setTimeout(() => URL.revokeObjectURL(blobUrl), 10_000);
-    } catch (err) {
-      alert(err.message || 'Could not download resource');
-    }
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${title}.pdf`;
+    a.target = '_blank';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
   };
 
   return (
@@ -129,19 +111,6 @@ export function ResourceCard({ resource, isBookmarked, onToggleBookmark, onDelet
               {isBookmarked ? <BookmarkCheck size={18} /> : <Bookmark size={18} />}
             </button>
           )}
-          {onDelete && (
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                onDelete(resource);
-              }}
-              disabled={deleting}
-              className="p-2 rounded-lg bg-red-500/20 text-red-300 hover:bg-red-500/30 transition-all disabled:opacity-50"
-              title="Delete Resource"
-            >
-              <Trash2 size={18} />
-            </button>
-          )}
         </div>
 
         <div className="text-[10px] text-muted flex justify-between items-center opacity-60 group-hover:opacity-100">
@@ -166,6 +135,4 @@ ResourceCard.propTypes = {
   }).isRequired,
   isBookmarked: PropTypes.bool,
   onToggleBookmark: PropTypes.func,
-  onDelete: PropTypes.func,
-  deleting: PropTypes.bool,
 };

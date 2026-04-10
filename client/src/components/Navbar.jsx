@@ -56,7 +56,7 @@ export function Navbar({ onSearch, unreadCount, notifications, markRead }) {
         </div>
 
         <div className="flex items-center gap-2 sm:gap-4">
-          <div className="relative">
+       {/*   <div className="relative">
             <button 
               className="p-2 rounded-full hover:bg-white/10 text-white relative transition-colors"
               onClick={() => setShowNotifications(!showNotifications)}
@@ -102,7 +102,7 @@ export function Navbar({ onSearch, unreadCount, notifications, markRead }) {
                 </motion.div>
               )}
             </AnimatePresence>
-          </div>
+          </div> */}
 
           <div className="relative">
             <button 

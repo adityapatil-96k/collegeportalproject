@@ -15,39 +15,18 @@ const corsOrigins = String(process.env.CORS_ORIGIN || '')
   .split(',')
   .map((v) => v.trim())
   .filter(Boolean);
-const defaultFrontendBaseUrl = 'https://collegeportalproject.vercel.app';
-const frontendBaseUrl = String(
-  process.env.FRONTEND_BASE_URL || (process.env.NODE_ENV === 'production' ? defaultFrontendBaseUrl : '')
-)
-  .trim()
-  .replace(/\/$/, '');
-const defaultCorsOrigins = ['http://localhost:5173', defaultFrontendBaseUrl];
-const resolvedCorsOrigins = corsOrigins.length > 0 ? corsOrigins : defaultCorsOrigins;
 
 // Trust proxy if behind HTTPS terminator in production
 app.set('trust proxy', 1);
 
 app.use(
   cors({
-    origin: resolvedCorsOrigins,
+    origin: corsOrigins.length > 0 ? corsOrigins : true,
     credentials: true,
   })
 );
 app.use(express.json());
 app.use(cookieParser());
-
-const frontendRedirectMap = {
-  '/': '/auth',
-  '/auth.html': '/auth',
-  '/student-dashboard.html': '/student',
-  '/teacher-dashboard.html': '/teacher',
-};
-
-app.get(Object.keys(frontendRedirectMap), (req, res, next) => {
-  if (!frontendBaseUrl) return next();
-  const destinationPath = frontendRedirectMap[req.path] || '/';
-  return res.redirect(302, `${frontendBaseUrl}${destinationPath}`);
-});
 
 // Static frontend (register, login, dashboards)
 app.use(express.static(path.join(__dirname, '..', 'public')));

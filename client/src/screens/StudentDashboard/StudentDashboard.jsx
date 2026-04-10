@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { BookOpen, Search, TrendingUp, Loader2, AlertCircle, UserCircle2, X } from 'lucide-react';
+import { BookOpen, Search, TrendingUp, Loader2, AlertCircle } from 'lucide-react';
 import { Navbar } from '../../components/Navbar';
 import { CategoryRow } from '../../components/CategoryRow';
 import { ResourceCard } from '../../components/ResourceCard';
@@ -60,12 +60,11 @@ export function StudentDashboard() {
     semester: profile?.semester ? String(profile.semester) : '1',
   });
   const [deletingAccount, setDeletingAccount] = useState(false);
-  const [profilePanelOpen, setProfilePanelOpen] = useState(false);
 
-  const { resources: trending } = useTrending('downloads');
+{/*  const { resources: trending } = useTrending('downloads');
   const { notifications, unreadCount, markRead } = useNotifications();
   const { bookmarks, isBookmarked, toggle: toggleBookmark } = useBookmarks();
-
+*/}
   const ready = Boolean(profile?.department && profile?.year && profile?.semester);
   const typeCounts = TYPES.map((type) => ({
     ...type,
@@ -152,10 +151,7 @@ export function StudentDashboard() {
     setSavingProfile(true);
     setError('');
     const payload = ready
-      ? {
-          year: Number(profileForm.year),
-          semester: Number(profileForm.semester),
-        }
+      ? { semester: Number(profileForm.semester) }
       : {
           department: profileForm.department,
           year: Number(profileForm.year),
@@ -175,7 +171,6 @@ export function StudentDashboard() {
         year: String(updatedProfile.year),
         semester: String(updatedProfile.semester),
       });
-      setProfilePanelOpen(false);
     } catch {
       setError('Could not save profile. Please try again.');
     } finally {
@@ -201,103 +196,6 @@ export function StudentDashboard() {
       setDeletingAccount(false);
     }
   };
-
-  const profileEditor = (
-    <div className="glass p-6 rounded-3xl shadow-2xl border-accent-start/30">
-      <div className="flex items-center justify-between gap-3 mb-4">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-accent-start/20 flex items-center justify-center text-accent-start">
-            <BookOpen size={20} />
-          </div>
-          <div>
-            <h4 className="font-bold text-white">
-              {ready ? 'Student Profile' : 'Complete Your Profile'}
-            </h4>
-            <p className="text-sm text-muted">
-              {ready
-                ? `Department is locked. You can change year and semester (${allowedSemestersForYear(profileForm.year)
-                    .map((s) => `Sem ${s}`)
-                    .join(', ')}).`
-                : 'Set department, year and semester to unlock resources.'}
-            </p>
-          </div>
-        </div>
-        <button
-          type="button"
-          onClick={() => setProfilePanelOpen(false)}
-          className="md:hidden p-2 rounded-lg bg-white/5 border border-white/10 text-muted hover:text-white"
-          aria-label="Close profile panel"
-        >
-          <X size={18} />
-        </button>
-      </div>
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-        <select
-          className="bg-white/5 border border-white/10 rounded-xl py-2.5 px-3 disabled:text-white/70 disabled:opacity-90"
-          value={profileForm.department}
-          disabled={ready}
-          onChange={(e) => setProfileForm((prev) => ({ ...prev, department: e.target.value }))}
-        >
-          <option value="">Department</option>
-          {DEPARTMENTS.map((dep) => (
-            <option key={dep} value={dep} className="bg-background">
-              {dep}
-            </option>
-          ))}
-        </select>
-        <select
-          className="bg-white/5 border border-white/10 rounded-xl py-2.5 px-3"
-          value={profileForm.year}
-          onChange={(e) => {
-            const year = e.target.value;
-            const allowed = allowedSemestersForYear(year).map(String);
-            setProfileForm((prev) => ({
-              ...prev,
-              year,
-              semester: allowed.includes(prev.semester) ? prev.semester : allowed[0],
-            }));
-          }}
-        >
-          {[1, 2, 3].map((year) => (
-            <option key={year} value={year} className="bg-background">
-              Year {year}
-            </option>
-          ))}
-        </select>
-        <select
-          className="bg-white/5 border border-white/10 rounded-xl py-2.5 px-3"
-          value={profileForm.semester}
-          onChange={(e) => setProfileForm((prev) => ({ ...prev, semester: e.target.value }))}
-        >
-          {allowedSemestersForYear(profileForm.year).map((semester) => (
-            <option key={semester} value={semester} className="bg-background">
-              Sem {semester}
-            </option>
-          ))}
-        </select>
-      </div>
-      <div className="mt-4 flex flex-wrap gap-3">
-        <button
-          type="button"
-          onClick={saveProfile}
-          disabled={savingProfile}
-          className="bg-accent-start hover:bg-accent-hover disabled:opacity-60 text-white px-6 py-2.5 rounded-xl font-bold"
-        >
-          {savingProfile ? 'Saving...' : ready ? 'Update Profile' : 'Save Profile'}
-        </button>
-        {ready ? (
-          <button
-            type="button"
-            onClick={removeAccount}
-            disabled={deletingAccount}
-            className="bg-red-500/20 hover:bg-red-500/30 border border-red-400/40 disabled:opacity-60 text-red-200 px-6 py-2.5 rounded-xl font-bold"
-          >
-            {deletingAccount ? 'Deleting...' : 'Delete Account'}
-          </button>
-        ) : null}
-      </div>
-    </div>
-  );
 
   if (authLoading) {
     return (
@@ -330,24 +228,14 @@ export function StudentDashboard() {
             <p className="text-lg text-muted max-w-2xl leading-relaxed">
               Access curated study materials for <span className="text-white font-bold">{profile?.department || 'your department'}</span>.
             </p>
-            <div className="flex flex-wrap items-center gap-3">
-              {ready ? (
-                <div className="inline-flex items-center gap-2 rounded-xl bg-white/5 border border-white/10 px-4 py-2 text-sm">
-                  <span className="text-muted">Profile:</span>
-                  <span className="font-semibold text-white">
-                    {profile.department} • Year {profile.year} • Sem {profile.semester}
-                  </span>
-                </div>
-              ) : null}
-              <button
-                type="button"
-                onClick={() => setProfilePanelOpen(true)}
-                className="inline-flex items-center gap-2 rounded-xl bg-accent-start/20 border border-accent-start/40 px-4 py-2 text-sm font-semibold text-accent-start hover:bg-accent-start/30 transition-colors"
-              >
-                <UserCircle2 size={18} />
-                {ready ? 'Update Profile' : 'Complete Profile'}
-              </button>
-            </div>
+            {ready ? (
+              <div className="inline-flex items-center gap-2 rounded-xl bg-white/5 border border-white/10 px-4 py-2 text-sm">
+                <span className="text-muted">Profile:</span>
+                <span className="font-semibold text-white">
+                  {profile.department} • Year {profile.year} • Sem {profile.semester}
+                </span>
+              </div>
+            ) : null}
           </motion.div>
         </div>
       </div>
@@ -459,47 +347,116 @@ export function StudentDashboard() {
         </AnimatePresence>
       </div>
 
-      <motion.div
-        initial={{ y: 100 }}
-        animate={{ y: 0 }}
-        className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 w-full max-w-2xl px-4 hidden md:block"
-      >
-        {profileEditor}
-      </motion.div>
-
-      <div className="md:hidden fixed bottom-6 right-4 z-50">
-        <button
-          type="button"
-          onClick={() => setProfilePanelOpen(true)}
-          className="w-14 h-14 rounded-2xl bg-accent-start text-white shadow-2xl shadow-accent-start/40 flex items-center justify-center"
-          aria-label="Open student profile settings"
-        >
-          <UserCircle2 size={26} />
-        </button>
-      </div>
-
-      <AnimatePresence>
-        {profilePanelOpen ? (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="md:hidden fixed inset-0 z-50 bg-background/70 backdrop-blur-sm p-4 flex items-end"
-            onClick={() => setProfilePanelOpen(false)}
-          >
-            <motion.div
-              initial={{ y: 30, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              exit={{ y: 20, opacity: 0 }}
-              transition={{ duration: 0.2 }}
-              className="w-full"
-              onClick={(e) => e.stopPropagation()}
+      <motion.div initial={{ y: 100 }} animate={{ y: 0 }} className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 w-full max-w-2xl px-4">
+        <div className="glass p-6 rounded-3xl shadow-2xl border-accent-start/30">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-10 h-10 rounded-xl bg-accent-start/20 flex items-center justify-center text-accent-start">
+              <BookOpen size={20} />
+            </div>
+            <div>
+              <h4 className="font-bold text-white">
+                {ready ? 'Student Profile' : 'Complete Your Profile'}
+              </h4>
+              <p className="text-sm text-muted">
+                {ready
+                  ? `Department and year are locked. You can change semester only (${allowedSemestersForYear(profileForm.year)
+                      .map((s) => `Sem ${s}`)
+                      .join(', ')}).`
+                  : 'Set department, year and semester to unlock resources.'}
+              </p>
+            </div>
+          </div>
+          {ready ? (
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <input
+                className="bg-white/5 border border-white/10 rounded-xl py-2.5 px-3 text-white/80"
+                value={profileForm.department}
+                disabled
+              />
+              <input
+                className="bg-white/5 border border-white/10 rounded-xl py-2.5 px-3 text-white/80"
+                value={`Year ${profileForm.year}`}
+                disabled
+              />
+              <select
+                className="bg-white/5 border border-white/10 rounded-xl py-2.5 px-3"
+                value={profileForm.semester}
+                onChange={(e) => setProfileForm((prev) => ({ ...prev, semester: e.target.value }))}
+              >
+                {allowedSemestersForYear(profileForm.year).map((semester) => (
+                  <option key={semester} value={semester} className="bg-background">
+                    Sem {semester}
+                  </option>
+                ))}
+              </select>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <select
+                className="bg-white/5 border border-white/10 rounded-xl py-2.5 px-3"
+                value={profileForm.department}
+                onChange={(e) => setProfileForm((prev) => ({ ...prev, department: e.target.value }))}
+              >
+                <option value="">Department</option>
+                {DEPARTMENTS.map((dep) => (
+                  <option key={dep} value={dep} className="bg-background">
+                    {dep}
+                  </option>
+                ))}
+              </select>
+              <select
+                className="bg-white/5 border border-white/10 rounded-xl py-2.5 px-3"
+                value={profileForm.year}
+                onChange={(e) => {
+                  const year = e.target.value;
+                  setProfileForm((prev) => ({
+                    ...prev,
+                    year,
+                    semester: String(allowedSemestersForYear(year)[0]),
+                  }));
+                }}
+              >
+                {[1, 2, 3].map((year) => (
+                  <option key={year} value={year} className="bg-background">
+                    Year {year}
+                  </option>
+                ))}
+              </select>
+              <select
+                className="bg-white/5 border border-white/10 rounded-xl py-2.5 px-3"
+                value={profileForm.semester}
+                onChange={(e) => setProfileForm((prev) => ({ ...prev, semester: e.target.value }))}
+              >
+                {allowedSemestersForYear(profileForm.year).map((semester) => (
+                  <option key={semester} value={semester} className="bg-background">
+                    Sem {semester}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+          <div className="mt-4 flex gap-3">
+            <button
+              type="button"
+              onClick={saveProfile}
+              disabled={savingProfile}
+              className="bg-accent-start hover:bg-accent-hover disabled:opacity-60 text-white px-6 py-2.5 rounded-xl font-bold"
             >
-              {profileEditor}
-            </motion.div>
-          </motion.div>
-        ) : null}
-      </AnimatePresence>
+              {savingProfile ? 'Saving...' : ready ? 'Update Semester' : 'Save Profile'}
+            </button>
+            {ready ? (
+              <button
+                type="button"
+                onClick={removeAccount}
+                disabled={deletingAccount}
+                className="bg-red-500/20 hover:bg-red-500/30 border border-red-400/40 disabled:opacity-60 text-red-200 px-6 py-2.5 rounded-xl font-bold"
+              >
+                {deletingAccount ? 'Deleting...' : 'Delete Account'}
+              </button>
+            ) : null}
+          </div>
+        </div>
+      </motion.div>
     </div>
   );
 }
