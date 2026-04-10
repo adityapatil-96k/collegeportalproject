@@ -61,10 +61,10 @@ export function StudentDashboard() {
   });
   const [deletingAccount, setDeletingAccount] = useState(false);
 
-{/*  const { resources: trending } = useTrending('downloads');
+  const { resources: trending } = useTrending('downloads');
   const { notifications, unreadCount, markRead } = useNotifications();
   const { bookmarks, isBookmarked, toggle: toggleBookmark } = useBookmarks();
-*/}
+
   const ready = Boolean(profile?.department && profile?.year && profile?.semester);
   const typeCounts = TYPES.map((type) => ({
     ...type,

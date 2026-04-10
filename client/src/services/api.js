@@ -118,33 +118,33 @@ export async function deleteStudentAccount() {
   return api.delete('/student-account');
 }
 
-// export async function getBookmarks() {
-//   return api.get('/bookmarks');
-// }
+export async function getBookmarks() {
+  return api.get('/bookmarks');
+}
 
-// export async function addBookmark(resourceId) {
-//   return api.post('/bookmarks', { resourceId });
-// }
+export async function addBookmark(resourceId) {
+  return api.post('/bookmarks', { resourceId });
+}
 
-// export async function removeBookmark(bookmarkId) {
-//   return api.delete(`/bookmarks/${bookmarkId}`);
-// }
+export async function removeBookmark(bookmarkId) {
+  return api.delete(`/bookmarks/${bookmarkId}`);
+}
 
-// export async function getTrendingResources(sortBy = 'downloads') {
-//   return api.get(`/resources/trending?sortBy=${encodeURIComponent(sortBy)}`);
-// }
+export async function getTrendingResources(sortBy = 'downloads') {
+  return api.get(`/resources/trending?sortBy=${encodeURIComponent(sortBy)}`);
+}
 
-// export async function searchResources(query) {
-//   return api.get(`/resources/search?q=${encodeURIComponent(query)}`);
-// }
+export async function searchResources(query) {
+  return api.get(`/resources/search?q=${encodeURIComponent(query)}`);
+}
 
-// export async function getNotifications() {
-//   return api.get('/notifications');
-// }
+export async function getNotifications() {
+  return api.get('/notifications');
+}
 
-// export async function markNotificationRead(id) {
-//   return api.put(`/notifications/read/${id}`, {});
-// }
+export async function markNotificationRead(id) {
+  return api.put(`/notifications/read/${id}`, {});
+}
 
 export async function trackDownload(resourceId) {
   return api.post(`/resources/${resourceId}/download`, {});

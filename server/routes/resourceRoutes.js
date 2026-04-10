@@ -80,12 +80,12 @@ router.post('/resources/:id/download', authenticate, requireRole('student', 'tea
 
 router.get('/resources/my', authenticate, requireRole('teacher'), listMyResources);
 
-// router.post('/bookmarks', authenticate, requireRole('student'), createBookmark);
-// router.get('/bookmarks', authenticate, requireRole('student'), listBookmarks);
-// router.delete('/bookmarks/:id', authenticate, requireRole('student'), deleteBookmark);
+router.post('/bookmarks', authenticate, requireRole('student'), createBookmark);
+router.get('/bookmarks', authenticate, requireRole('student'), listBookmarks);
+router.delete('/bookmarks/:id', authenticate, requireRole('student'), deleteBookmark);
 
-// router.get('/notifications', authenticate, requireRole('student'), listNotifications);
-// router.put('/notifications/read/:id', authenticate, requireRole('student'), markNotificationRead);
+router.get('/notifications', authenticate, requireRole('student'), listNotifications);
+router.put('/notifications/read/:id', authenticate, requireRole('student'), markNotificationRead);
 
 router.put('/resources/:id', authenticate, requireRole('teacher'), updateResource);
 router.delete('/resources/:id', authenticate, requireRole('teacher'), deleteResource);
